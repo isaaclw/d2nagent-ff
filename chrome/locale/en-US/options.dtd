@@ -1,0 +1,4 @@
+<!ENTITY prefwindow.title "Die2nite map updater preferences">
+<!ENTITY pane1.title "Die2nite map tool preferences">
+<!ENTITY apikeypref.label "Die2nite API key">
+<!ENTITY apikeypref.accesskey "A">

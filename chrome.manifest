@@ -1,0 +1,7 @@
+content   d2nagent                 chrome/content/
+skin      d2nagent   classic/1.0   chrome/skin/
+locale    d2nagent   en-US         chrome/locale/en-US/
+
+
+overlay   chrome://browser/content/browser.xul   chrome://d2nagent/content/ff-overlay.xul
+style chrome://global/content/customizeToolbar.xul chrome://d2nagent/skin/overlay.css

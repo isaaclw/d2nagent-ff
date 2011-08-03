@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!DOCTYPE prefwindow SYSTEM "chrome://d2nagent/locale/options.dtd">
+<prefwindow id="d2nagent-preferences" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" title="&prefwindow.title;">
+	<prefpane id="pane1" label="&pane1.title;">
+		<preferences>
+			<preference id="apikeypref1" name="extensions.d2nagent.apikeypref" type="string"/>
+		</preferences>
+		<label accesskey="&apikeypref.accesskey;" control="textstringpref">&apikeypref.label;</label>
+		<textbox id="textapikeypref" preference="apikeypref1"/>
+	</prefpane>
+</prefwindow>

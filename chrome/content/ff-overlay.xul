@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://d2nagent/skin/overlay.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://d2nagent/locale/overlay.dtd">
+<overlay id="d2nagent-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <script src="overlay.js"/>
+    <!-- put jquery here? -->
+
+    <stringbundleset id="stringbundleset">
+        <stringbundle id="d2nagent-strings" src="chrome://d2nagent/locale/overlay.properties"/>
+    </stringbundleset>
+
+	<popup id="contentAreaContextMenu">
+		<menuitem
+			id="context-d2nagent" label="&d2nagentContext.label;"
+			accesskey="&d2nagentContext.accesskey;"
+			insertbefore="context-back"
+			class="menuitem-iconic"
+			oncommand="d2nagent.onMenuItemCommand(event)"
+		/>
+	</popup>
+
+    <toolbarpalette id="BrowserToolbarPalette">
+    <toolbarbutton 
+        id="d2nagent-toolbar-button"
+        class="toolbarbutton-1 chromeclass-toolbar-additional"
+        label="&d2nagentToolbarButton.label;"
+        tooltiptext="&d2nagentToolbarButton.tooltip;"
+        oncommand="d2nagent.onToolbarButtonCommand()" />
+    </toolbarpalette>
+</overlay>

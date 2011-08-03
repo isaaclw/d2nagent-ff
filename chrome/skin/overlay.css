@@ -1,0 +1,26 @@
+/* This is just an example.  You shouldn't do this. */
+#d2nagent-hello
+{
+  color: red ! important;
+}
+
+#d2nagent-toolbar-button
+{
+  list-style-image: url("chrome://d2nagent/skin/24x24.png");
+}
+
+#context-d2nagent {
+  list-style-image: url("chrome://d2nagent/skin/16x16.png");
+}
+
+[iconsize="small"] #d2nagent-toolbar-button
+{
+  list-style-image: url("chrome://d2nagent/skin/16x16.png");
+}
+
+[iconsize="small"] #d2nagent-toolbar-button:hover
+{
+
+}
+
+

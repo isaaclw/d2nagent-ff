@@ -1,0 +1,10 @@
+#!/bin/bash
+file_name="d2nagent"
+
+this=`echo "$0" | sed -e 's/^.\///g'`
+list=`ls . | grep -v "$file_name" | grep -v "$this"`
+
+mv $file_name.xpi $file_name.xpi.0
+zip -r $file_name.xpi $list
+
+sudo cp $file_name.xpi /var/www/
