@@ -6,7 +6,13 @@
 		<preferences>
 			<preference id="apikeypref1" name="extensions.d2nagent.apikeypref" type="string"/>
 		</preferences>
-		<label accesskey="&apikeypref.accesskey;" control="textstringpref">&apikeypref.label;</label>
-		<textbox id="textapikeypref" preference="apikeypref1"/>
+
+        <label control="textstringpref">&warning.label;</label>
+
+		<label accesskey="&apikeypref-oo.accesskey;" control="textstringpref">&apikeypref-oo.label;</label>
+		<textbox id="textapikeypref-oo" preference="apikeypref-oo"/>
+
+		<label accesskey="&apikeypref-at.accesskey;" control="textstringpref">&apikeypref-at.label;</label>
+		<textbox id="textapikeypref-at" preference="apikeypref-at"/>
 	</prefpane>
 </prefwindow>

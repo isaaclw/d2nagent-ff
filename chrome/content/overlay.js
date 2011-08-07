@@ -22,86 +22,31 @@ var d2nagent = {
 
     onMenuItemCommand: function(e) {
         // VARIABLES
+        var ookey="";
+        var atkey="";
         var prefManager = Components.classes["@mozilla.org/preferences-service;1"]
             .getService(Components.interfaces.nsIPrefBranch)
             .getBranch("extensions.d2nagent.");
-        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-            .getService(Components.interfaces.nsIPromptService);
 
-		if (prefManager.prefHasUserValue("apikeypref")) {
-			var key = prefManager.getCharPref("apikeypref");
-		}
-		else {
-			promptService.alert(null, "D2N Map Agent", 'Your secure API key for the die2nite map app could not be found!\n\nPlease configure it in preferences.');
-			return;
-		}
-
-
-        var data = 'key=' + key;
-
-        var oo_status = "";
-        var at_status = "";
-
-
-        // wow. awesome if statements follow.
-        // also makes me want to gouge my eyes out.
-        // switch to cases?
-        function checkStatus(site_name, state, status, text) {
-            d2nagent.logger("incoming report: " + site_name + " " + state + " " + status + " " + text + "\nPrevious: " + oo_status + " " + at_status);
-            if (site_name == "oo") {
-                if (state == 4) {
-                    if (status == 200) {
-                        oo_status = "Oval Office returned: " + text;
-                    }
-                    else {
-                        oo_status = "Oval Office failed. Unknown reason.";
-                    }
-                }
-            }
-            if (site_name == "at") {
-                if (state == 4) {
-                    if (status == 200) {
-                        at_status = "Atlas returned: " + text;
-                    }
-                    else {
-                        at_status = "Atlas failed. Unknown reason.";
-                    }
-                }
-            }
-            if ( oo_status != "" && at_status != "") {
-                promptService.alert(null, "D2N Map Agent", oo_status + "\n" + at_status);
-            }
+        // Oval Office
+        if (prefManager.prefHasUserValue("apikeypref-oo")) {
+        	ookey = prefManager.getCharPref("apikeypref-oo");
+        } else {
+            ookey = d2nagent.getkey("http://www.die2nite.com/disclaimer?id=10");
+            d2nagent.logger("Oval Office returned the key: " + ookey);
+            prefManager.setCharPref("apikeypref-oo", ookey);
         }
+        d2nagent.submitxhr("http://d2n.sindevel.com/oo/upd.php", "key=" + ookey, "Oval Office", "The Oval Office map has been updated.");
 
-
-
-        // NOW DO IT
-        d2nagent.logger("Running function");
-
-        // don't you just love running the same thing twice?
-        // needs serious refactoring
-        // maybe put both of these in a function and call the function?
-		var xhro = new XMLHttpRequest();
-		xhro.open("POST", "http://d2n.sindevel.com/oo/upd.php", true);
-		xhro.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		xhro.setRequestHeader("Content-length", data.length);
-		xhro.setRequestHeader("Connection", "close");
-		xhro.onreadystatechange = function() {
-            d2nagent.logger("Oval: state changed");
-            checkStatus("oo", xhro.readyState, xhro.status, xhro.responseText);
-		}
-		xhro.send(data);
-
-		var xhra = new XMLHttpRequest();
-		xhra.open("POST", "http://atlas.wonderfulfailure.com/scripts/updater.php", true);
-		xhra.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		xhra.setRequestHeader("Content-length", data.length);
-		xhra.setRequestHeader("Connection", "close");
-		xhra.onreadystatechange = function() {
-            d2nagent.logger("Atlas: state changed");
-            checkStatus("at", xhra.readyState, xhra.status, xhra.responseText);
-		}
-		xhra.send(data);
+        // Atlas
+        if (prefManager.prefHasUserValue("apikeypref-at")) {
+            var atkey = prefManager.getCharPref("apikeypref-at");
+        } else {
+            atkey = d2nagent.getkey("http://www.die2nite.com/disclaimer?id=12");
+            d2nagent.logger("Atlas returned the key: " + atkey);
+            prefManager.setCharPref("apikeypref-at", atkey);
+        }
+        d2nagent.submitxhr("http://atlas.wonderfulfailure.com/scripts/updater.php", "key=" + atkey, "Atlas", "1");
 
     },
 
@@ -116,30 +61,106 @@ var d2nagent = {
         }
     },
 
+    submitxhr: function(address, data, webname, succeedstring) {
+    // example: ("http://atlas.wonderfulfailure.com/scripts/updater.php", ??, "Atlas" "1")
+
+        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+            .getService(Components.interfaces.nsIPromptService);
+
+        var xhr = new XMLHttpRequest();
+		xhr.open("POST", address, true);
+		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xhr.setRequestHeader("Content-length", data.length);
+		xhr.setRequestHeader("Connection", "close");
+		xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    if (xhr.responseText == succeedstring) { 
+                        promptService.alert(null, "D2N Map Agent", webname + " is updated!");
+                    } else { 
+                        promptService.alert(null, "D2N Map Agent", webname + " was supposed to return '" + succeedstring + "' but instead returned '" + xhr.responseText + "'");
+                    }
+                } else {
+                    promptService.alert(null, "D2N Map Agent", webname + " failed with html error: '" + xhr.status + "'");
+                }
+            } // no else, just keep waiting.
+		}
+		xhr.send(data);
+    },
+
+    getkey: function(page) {
+        var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+            .getService(Components.interfaces.nsIPromptService);
+
+        var key = "";
+        var regex = /<input.*?name="key".*?value="([0-9a-f]+)"/ig;
+        regex.lastIndex = 0;
+        var xhr = new XMLHttpRequest();
+
+        // syncronous code
+        xhr.open("GET", page, false);
+        d2nagent.logger("sending");
+        promptService.alert(null, "D2N Map Agent", "Your Browser may freeze.\nGetting your secure key...");
+        xhr.send(null);
+        if(xhr.status == 200) {
+            d2nagent.logger("recieved");
+            var matches = regex.exec(xhr.responseText);
+            key = matches[1];
+            d2nagent.logger("found key: '" + key + "'.");
+            return key;
+        } else {
+            d2nagent.logger("Error loading page\n"); 
+            return "-1";
+        }
+/*
+        // asyncronous code
+        xhr.open("GET", page, false);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+                if(xhr.status == 200) {
+                    var html = xhr.responseText;
+                    var matches = regex.exec(html);
+                    key = matches[1];
+                    d2nagent.logger("found key: '" + key + "'.");
+                    return key;
+                } else {
+                    d2nagent.logger("Error loading page\n"); 
+                    return "-1";
+                }
+            }
+        };
+        // now we wait for it to complete
+        while ( key == "" ) {
+            d2nagent.logger("waiting for key to be set");
+
+            d2nagent.logger("recovering, trying again");
+        }
+        d2nagent.logger("key = '" + key + "' so continuing");
+        return key;
+*/
+
+    },
+
     logger: function(aMessage) {
-        var debugging = false;
+        var debugging = true;
         var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
                         .getService(Components.interfaces.nsIConsoleService);
         if (debugging) {
-            consoleService.logStringMessage("d2nagent-debugger:\n" + aMessage);
+            consoleService.logStringMessage("d2nA[dbg]:\n" + aMessage);
         }
     },
 
     onLoad: function() {
         // initialization code
         this.initialized = true;
-        d2nagent.logger("Initializing!");
 	    document.getElementById("contentAreaContextMenu").addEventListener("popupshowing", function (e) {
 			d2nagent.showContextMenu();
 		}, false)
     },
 
     showContextMenu: function() {
-        d2nagent.logger("url: " + window.content.location.href);
-        d2nagent.logger("isOutside: " + window.content.location.href.match('^http://www\.die2nite\.com/\#outside\\?go\=outside\/refresh'));
-        d2nagent.logger("thereforeHidden: " + (window.content.location.href.match('^http://www\.die2nite\.com/\#outside\\?go\=outside\/refresh') == null));
 		document.getElementById("context-d2nagent").hidden = (window.content.location.href.match('^http://www\.die2nite\.com/\#outside\\?go\=outside\/refresh') == null);
-	}
+    }
 
 };
 
