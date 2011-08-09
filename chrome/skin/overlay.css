@@ -24,3 +24,12 @@
 }
 
 
+/* Content inserted into the webpage */
+
+div#statuslog {
+    font-size:2em;
+}
+
+div#statuslog p.entry {
+    color:red;
+}
