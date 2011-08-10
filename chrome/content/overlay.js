@@ -24,8 +24,9 @@ var d2nagent = {
         var prefManager = Components.classes["@mozilla.org/preferences-service;1"]
             .getService(Components.interfaces.nsIPrefBranch)
             .getBranch("extensions.d2nagent.");
-
-        var apikey = "";
+    
+        // clear statuslog each time you submit
+        d2nagent.clearstatus();
 
 
         // Oval Office
@@ -61,27 +62,36 @@ var d2nagent = {
         }
     },
 
-    setstatus: function(status) {
-        if (d2nagent.disableProgram()) {
-            return false;
-        }
-        var id = "statuslog";
-
+    initstatus: function(id) {
         if (content.document.getElementById(id) == null) {            
             var newNode = content.document.createElement("div");
             newNode.id = id;
             var refNode = content.document.getElementById("generic_section");
             refNode.parentNode.insertBefore(newNode, refNode);
-
         }
+        return content.document.getElementById(id);
+    },
 
-        var logNode = content.document.getElementById(id);
+    setstatus: function(status) {
+        if (d2nagent.disableProgram()) {
+            return false;
+        }
+        var id = "statuslog";
+        
+
+        var logNode = d2nagent.initstatus(id);
+
         var newEntry = content.document.createElement("p");
         newEntry.className = "entry";
         newEntry.textContent = status;        
         
         logNode.appendChild(newEntry);
+    },
+    clearstatus: function() {
+        var id = "statuslog";
         
+        var logNode = d2nagent.initstatus(id);
+        logNode.textContent = "";
     },
 
     submitxhr: function(address, data, webname, succeedstring) {
@@ -119,7 +129,7 @@ var d2nagent = {
 
         // syncronous code
         xhr.open("GET", address, true);
-        d2nagent.setstatus("Requesting keys for " + webname + "... please wait till it's retrieved.");
+        d2nagent.setstatus("Requesting key for " + webname + "... please wait till it's retrieved.");
 		xhr.onreadystatechange = function() {
             if (xhr.readyState == 4) {
                 if(xhr.status == 200) {

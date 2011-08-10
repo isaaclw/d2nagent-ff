@@ -5,3 +5,5 @@
 <!ENTITY apikeypref-oo.accesskey "O">
 <!ENTITY apikeypref-at.label "The Atlas key">
 <!ENTITY apikeypref-at.accesskey "A">
+<!ENTITY apikeypref-em.label "The External Map key">
+<!ENTITY apikeypref-em.accesskey "E">
