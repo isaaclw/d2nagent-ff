@@ -1,6 +1,6 @@
 <!ENTITY prefwindow.title "Die2nite map updater preferences">
 <!ENTITY pane1.title "Die2nite map tool preferences">
-<!ENTITY warning.label "Do not share any of these keys. If you reset your API key, clear both keys and 'update' to get the new key.">
+<!ENTITY warning.label "Do not add any keys: Use the tool to auto-update.\nDo not share any of these keys.\nThis interface is only for deleting so that the program can reset your key.\nIf you reset your API key, clear all keys and 'update' to get the new key.">
 <!ENTITY apikeypref-oo.label "The Oval Office key">
 <!ENTITY apikeypref-oo.accesskey "O">
 <!ENTITY apikeypref-at.label "The Atlas key">

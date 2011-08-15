@@ -8,14 +8,14 @@
     <em:creator>Isaac Witmer</em:creator>
     <em:contributor>Rulesy</em:contributor>
     <em:contributor>Sinmast</em:contributor>
-    <em:description>This program updates any and all unofficial maps related to the browser game die2nite</em:description>
+    <em:description>This program updates unofficial maps related to the browser game die2nite.</em:description>
     <em:aboutURL>chrome://d2nagent/content/about.xul</em:aboutURL>
     <em:optionsURL>chrome://d2nagent/content/options.xul</em:optionsURL>
     <em:targetApplication>
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id> <!-- Firefox -->
         <em:minVersion>3.6</em:minVersion>
-        <em:maxVersion>5.*</em:maxVersion>
+        <em:maxVersion>7.*</em:maxVersion>
       </Description>
     </em:targetApplication>
   </Description>
