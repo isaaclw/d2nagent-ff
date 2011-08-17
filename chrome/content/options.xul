@@ -4,21 +4,13 @@
 <prefwindow id="d2nagent-preferences" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" title="&prefwindow.title;">
 	<prefpane id="pane1" label="&pane1.title;">
 		<preferences>
-			<preference id="apikeypref-oo" name="extensions.d2nagent.apikeypref-oo" type="string"/>
-			<preference id="apikeypref-at" name="extensions.d2nagent.apikeypref-at" type="string"/>
-			<preference id="apikeypref-em" name="extensions.d2nagent.apikeypref-em" type="string"/>
+			<preference id="clearkeys" name="extensions.d2nagent.clearkeys" type="bool"/>
 		</preferences>
 
-        <label control="textstringpref">&warning.label;</label>
+        <label>&autoupdate.label;</label>
+        <label>&howtouse.label;</label>
 
-		<label accesskey="&apikeypref-oo.accesskey;" control="textstringpref">&apikeypref-oo.label;</label>
-		<textbox id="textapikeypref-oo" preference="apikeypref-oo"/>
-
-		<label accesskey="&apikeypref-at.accesskey;" control="textstringpref">&apikeypref-at.label;</label>
-		<textbox id="textapikeypref-at" preference="apikeypref-at"/>
-
-		<label accesskey="&apikeypref-em.accesskey;" control="textstringpref">&apikeypref-em.label;</label>
-		<textbox id="textapikeypref-em" preference="apikeypref-em"/>
+        <checkbox id="clearkeys" accesskey="&clearkeys.accesskey;" preference="clearkeys" label="&clearkeys.label;" />
 
 	</prefpane>
 </prefwindow>

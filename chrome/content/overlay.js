@@ -25,29 +25,31 @@ var d2nagent = {
             .getService(Components.interfaces.nsIPrefBranch)
             .getBranch("extensions.d2nagent.");
     
+        
         // clear statuslog each time you submit
         d2nagent.clearstatus();
+        d2nagent.checkClearKeys();
 
 
         // Oval Office
-        if (prefManager.prefHasUserValue("apikeypref-oo")) {
-            d2nagent.submitxhr("http://d2n.sindevel.com/oo/upd.php", "key=" + prefManager.getCharPref("apikeypref-oo"), "Oval Office", "The Oval Office map has been updated.");
+        if (prefManager.getCharPref("apikey-oo").length > 2 ) {
+            d2nagent.submitxhr("http://d2n.sindevel.com/oo/upd.php", "key=" + prefManager.getCharPref("apikey-oo"), "Oval Office", "The Oval Office map has been updated.");
         } else {
-            d2nagent.storekey("http://www.die2nite.com/disclaimer?id=10", "Oval Office", "apikeypref-oo");
+            d2nagent.storekey("http://www.die2nite.com/disclaimer?id=10", "Oval Office", "apikey-oo");
         }
 
         // Atlas
-        if (prefManager.prefHasUserValue("apikeypref-at")) {
-            d2nagent.submitxhr("http://atlas.wonderfulfailure.com/scripts/updater.php", "key=" + prefManager.getCharPref("apikeypref-at"), "Atlas", "1");
+        if (prefManager.getCharPref("apikey-at").length > 2 ) {
+            d2nagent.submitxhr("http://atlas.wonderfulfailure.com/scripts/updater.php", "key=" + prefManager.getCharPref("apikey-at"), "Atlas", "1");
         } else {
-            d2nagent.storekey("http://www.die2nite.com/disclaimer?id=12", "Atlas", "apikeypref-at");
+            d2nagent.storekey("http://www.die2nite.com/disclaimer?id=12", "Atlas", "apikey-at");
         }
 
         // External Map
-        if (prefManager.prefHasUserValue("apikeypref-em")) {
-            d2nagent.submitxhr("http://d2nextmap.metaemployee.com/index.php?r=site/update", "key=" + prefManager.getCharPref("apikeypref-em"), "External Map", "1");
+        if (prefManager.getCharPref("apikey-em").length > 2 ) {
+            d2nagent.submitxhr("http://d2nextmap.metaemployee.com/index.php?r=site/update", "key=" + prefManager.getCharPref("apikey-em"), "External Map", "1");
         } else {
-            d2nagent.storekey("http://www.die2nite.com/disclaimer?id=15", "External Map", "apikeypref-em");
+            d2nagent.storekey("http://www.die2nite.com/disclaimer?id=15", "External Map", "apikey-em");
         }
     },
     
@@ -167,6 +169,20 @@ var d2nagent = {
     
     disableProgram: function() {
         return (window.content.location.href.match('^http://www\.die2nite\.com/\#outside\\?go\=outside\/refresh') == null);
+    },
+
+    checkClearKeys: function() {
+        var prefManager = Components.classes["@mozilla.org/preferences-service;1"]
+            .getService(Components.interfaces.nsIPrefBranch)
+            .getBranch("extensions.d2nagent.");
+
+        if (prefManager.getBoolPref("clearkeys")) {
+            d2nagent.setstatus("Clearing your keys, and fetching new ones as requested.");
+            prefManager.setCharPref("apikey-oo", "");
+            prefManager.setCharPref("apikey-at", "");
+            prefManager.setCharPref("apikey-em", "");
+            prefManager.setBoolPref("clearkeys", false);
+        }
     }
 
 };

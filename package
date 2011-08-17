@@ -2,9 +2,8 @@
 file_name="d2nagent"
 
 this=`echo "$0" | sed -e 's/^.\///g'`
-list=`ls . | grep -v "$file_name" | grep -v "$this"`
 
 rm $file_name.xpi
-zip -r $file_name.xpi $list
+zip -r $file_name.xpi * -x \*~ \*.xpi $this\*
 
 sudo cp $file_name.xpi /var/www/
