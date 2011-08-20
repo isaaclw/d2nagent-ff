@@ -17,40 +17,30 @@
 	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+
+/* Continuous updater outline:
+
+while (true) { systemTimeout("d2nagent.thisfunction()", 1000); }
+
+thisfunction: function() {
+    // check to see if we're on the right page
+        // else quit
+    // check to see if the contents have updated
+        // else quit
+
+    d2nagent.runUpdate();
+        // quit
+}
+*/
+
+var STATUS_ID = "statuslog";
+
+var zoneState = null;
+
 var d2nagent = {
 
     onMenuItemCommand: function(e) {
-        // VARIABLES
-        var prefManager = Components.classes["@mozilla.org/preferences-service;1"]
-            .getService(Components.interfaces.nsIPrefBranch)
-            .getBranch("extensions.d2nagent.");
-    
-        
-        // clear statuslog each time you submit
-        d2nagent.clearstatus();
-        d2nagent.checkClearKeys();
-
-
-        // Oval Office
-        if (prefManager.getCharPref("apikey-oo").length > 2 ) {
-            d2nagent.submitxhr("http://d2n.sindevel.com/oo/upd.php", "key=" + prefManager.getCharPref("apikey-oo"), "Oval Office", "The Oval Office map has been updated.");
-        } else {
-            d2nagent.storekey("http://www.die2nite.com/disclaimer?id=10", "Oval Office", "apikey-oo");
-        }
-
-        // Atlas
-        if (prefManager.getCharPref("apikey-at").length > 2 ) {
-            d2nagent.submitxhr("http://atlas.wonderfulfailure.com/scripts/updater.php", "key=" + prefManager.getCharPref("apikey-at"), "Atlas", "1");
-        } else {
-            d2nagent.storekey("http://www.die2nite.com/disclaimer?id=12", "Atlas", "apikey-at");
-        }
-
-        // External Map
-        if (prefManager.getCharPref("apikey-em").length > 2 ) {
-            d2nagent.submitxhr("http://d2nextmap.metaemployee.com/index.php?r=site/update", "key=" + prefManager.getCharPref("apikey-em"), "External Map", "1");
-        } else {
-            d2nagent.storekey("http://www.die2nite.com/disclaimer?id=15", "External Map", "apikey-em");
-        }
+        d2nagent.runUpdate();
     },
     
 
@@ -60,7 +50,47 @@ var d2nagent = {
             .getService(Components.interfaces.nsIPromptService);
             promptService.alert(null, "D2N Map Agent", "This button is for The World Beyond on die2nite.com!");
         } else {
-            d2nagent.onMenuItemCommand();
+            d2nagent.runUpdate();
+        }
+    },
+
+    runUpdate: function() {
+        // VARIABLES
+        var prefManager = Components.classes["@mozilla.org/preferences-service;1"]
+            .getService(Components.interfaces.nsIPrefBranch)
+            .getBranch("extensions.d2nagent.");
+        
+        // clear statuslog each time you submit
+        d2nagent.clearstatus();
+        d2nagent.checkClearKeys();
+
+        // Oval Office
+        if (prefManager.getCharPref("apikey-oo").length > 2 ) {
+            d2nagent.submitxhr("http://d2n.sindevel.com/oo/upd.php",
+                "key=" + prefManager.getCharPref("apikey-oo"), "Oval Office", "^The Oval Office map has been updated.$");
+        } else {
+            d2nagent.storekey("http://www.die2nite.com/disclaimer?id=10", "Oval Office", "apikey-oo");
+        }
+        // Atlas
+        if (prefManager.getCharPref("apikey-at").length > 2 ) {
+            d2nagent.submitxhr("http://atlas.wonderfulfailure.com/scripts/updater.php",
+                "key=" + prefManager.getCharPref("apikey-at"), "Atlas", "^1$");
+        } else {
+            d2nagent.storekey("http://www.die2nite.com/disclaimer?id=12", "Atlas", "apikey-at");
+        }
+        // External Map
+        if (prefManager.getCharPref("apikey-em").length > 2 ) {
+            d2nagent.submitxhr("http://d2nextmap.metaemployee.com/index.php?r=site/update",
+                "key=" + prefManager.getCharPref("apikey-em"), "External Map", "^1$");
+        } else {
+            d2nagent.storekey("http://www.die2nite.com/disclaimer?id=15", "External Map", "apikey-em");
+        }
+        // Dusk till Dawn
+        if (prefManager.getCharPref("apikey-dd").length > 2 ) {
+            d2nagent.submitxhr("http://d2n.duskdawn.net/zone?action=UPDATE_ZONE",
+                "key=" + prefManager.getCharPref("apikey-dd"), "Dusk till Dawn", ".*");
+        } else {
+            d2nagent.storekey("http://www.die2nite.com/disclaimer?id=14", "Dusk till Dawn", "apikey-dd");
         }
     },
 
@@ -77,11 +107,9 @@ var d2nagent = {
     setstatus: function(status) {
         if (d2nagent.disableProgram()) {
             return false;
-        }
-        var id = "statuslog";
-        
+        }        
 
-        var logNode = d2nagent.initstatus(id);
+        var logNode = d2nagent.initstatus(STATUS_ID);
 
         var newEntry = content.document.createElement("p");
         newEntry.className = "entry";
@@ -89,15 +117,16 @@ var d2nagent = {
         
         logNode.appendChild(newEntry);
     },
+
     clearstatus: function() {
-        var id = "statuslog";
-        
-        var logNode = d2nagent.initstatus(id);
+        var logNode = d2nagent.initstatus(STATUS_ID);
         logNode.textContent = "";
     },
 
-    submitxhr: function(address, data, webname, succeedstring) {
+    submitxhr: function(address, data, webname, rgxString) {
     // example: ("http://atlas.wonderfulfailure.com/scripts/updater.php", ??, "Atlas" "1")
+
+        var tstSuccess = new RegExp(rgxString);
 
         var xhr = new XMLHttpRequest();
 		xhr.open("POST", address, true);
@@ -105,12 +134,13 @@ var d2nagent = {
 		xhr.setRequestHeader("Content-length", data.length);
 		xhr.setRequestHeader("Connection", "close");
 		xhr.onreadystatechange = function() {
+            d2nagent.logger("update state changed: " + webname);
             if (xhr.readyState == 4) {
                 if (xhr.status == 200) {
-                    if (xhr.responseText == succeedstring) {
+                    if (tstSuccess.test(xhr.responseText)) {
                         d2nagent.setstatus(webname + " is updated!");
                     } else {
-                        d2nagent.setstatus(webname + " was supposed to return '" + succeedstring + "' but instead returned '" + xhr.responseText + "'");
+                        d2nagent.setstatus(webname + " did not return the correct response.");
                     }
                 } else {
                     d2nagent.setstatus(webname + " failed with html error: '" + xhr.status + "'");
@@ -131,7 +161,7 @@ var d2nagent = {
 
         // syncronous code
         xhr.open("GET", address, true);
-        d2nagent.setstatus("Requesting key for " + webname + "... please wait till it's retrieved.");
+        d2nagent.setstatus("Requesting '" + webname + "' key ... please wait till it's retrieved.");
 		xhr.onreadystatechange = function() {
             if (xhr.readyState == 4) {
                 if(xhr.status == 200) {
@@ -167,7 +197,7 @@ var d2nagent = {
 		document.getElementById("context-d2nagent").hidden = d2nagent.disableProgram();
     },
     
-    disableProgram: function() {
+    disableProgram: function() { // returns true (disable the program!) if you're not outside
         return (window.content.location.href.match('^http://www\.die2nite\.com/\#outside\\?go\=outside\/refresh') == null);
     },
 
@@ -181,6 +211,7 @@ var d2nagent = {
             prefManager.setCharPref("apikey-oo", "");
             prefManager.setCharPref("apikey-at", "");
             prefManager.setCharPref("apikey-em", "");
+            prefManager.setCharPref("apikey-dd", "");
             prefManager.setBoolPref("clearkeys", false);
         }
     }
