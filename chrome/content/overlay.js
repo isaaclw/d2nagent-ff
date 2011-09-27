@@ -18,21 +18,6 @@
 */
 
 
-/* Continuous updater outline:
-
-while (true) { systemTimeout("d2nagent.thisfunction()", 1000); }
-
-thisfunction: function() {
-    // check to see if we're on the right page
-        // else quit
-    // check to see if the contents have updated
-        // else quit
-
-    d2nagent.runUpdate();
-        // quit
-}
-*/
-
 var STATUS_ID = "statuslog";
 
 var zoneState = null;
@@ -42,7 +27,7 @@ var d2nagent = {
     onMenuItemCommand: function(e) {
         d2nagent.runUpdate();
     },
-    
+
 
     onToolbarButtonCommand: function(e) {
         if (d2nagent.disableProgram()) {
@@ -59,10 +44,13 @@ var d2nagent = {
         var prefManager = Components.classes["@mozilla.org/preferences-service;1"]
             .getService(Components.interfaces.nsIPrefBranch)
             .getBranch("extensions.d2nagent.");
-        
+
         // clear statuslog each time you submit
         d2nagent.clearstatus();
         d2nagent.checkClearKeys();
+        content.document.getElementsByClassName('right')[0].addEventListener( "change", function(){
+            d2nagent.logger(" '.right' has changed");
+        }, false);
 
         // Oval Office
         if (prefManager.getCharPref("apikey-oo").length > 2 ) {
@@ -95,11 +83,11 @@ var d2nagent = {
     },
 
     initstatus: function(id) {
-        if (content.document.getElementById(id) == null) {            
+        if (content.document.getElementById(id) == null) {
             var newNode = content.document.createElement("div");
             newNode.id = id;
-            var refNode = content.document.getElementById("generic_section");
-            refNode.parentNode.insertBefore(newNode, refNode);
+            var refNode = content.document.getElementById("mapTips");
+            refNode.parentNode.appendChild(newNode);
         }
         return content.document.getElementById(id);
     },
@@ -107,14 +95,13 @@ var d2nagent = {
     setstatus: function(status) {
         if (d2nagent.disableProgram()) {
             return false;
-        }        
-
+        }
         var logNode = d2nagent.initstatus(STATUS_ID);
 
         var newEntry = content.document.createElement("p");
         newEntry.className = "entry";
-        newEntry.textContent = status;        
-        
+        newEntry.textContent = status;
+
         logNode.appendChild(newEntry);
     },
 
@@ -134,7 +121,6 @@ var d2nagent = {
 		xhr.setRequestHeader("Content-length", data.length);
 		xhr.setRequestHeader("Connection", "close");
 		xhr.onreadystatechange = function() {
-            d2nagent.logger("update state changed: " + webname);
             if (xhr.readyState == 4) {
                 if (xhr.status == 200) {
                     if (tstSuccess.test(xhr.responseText)) {
@@ -165,6 +151,7 @@ var d2nagent = {
 		xhr.onreadystatechange = function() {
             if (xhr.readyState == 4) {
                 if(xhr.status == 200) {
+//               d2nagent.setstatus(webname + "'s key page has been retreived, and contains match = " + regex.test(xhr.responseText));
                     var matches = regex.exec(xhr.responseText);
                     prefManager.setCharPref(prefLoc, matches[1]);
                     d2nagent.setstatus("Success: " + webname + " key found. It will be used next time you update.");
@@ -196,7 +183,7 @@ var d2nagent = {
     showContextMenu: function() {
 		document.getElementById("context-d2nagent").hidden = d2nagent.disableProgram();
     },
-    
+
     disableProgram: function() { // returns true (disable the program!) if you're not outside
         return (window.content.location.href.match('^http://www\.die2nite\.com/\#outside\\?go\=outside\/refresh') == null);
     },
