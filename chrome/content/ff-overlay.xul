@@ -20,7 +20,7 @@
 	</popup>
 
     <toolbarpalette id="BrowserToolbarPalette">
-    <toolbarbutton 
+    <toolbarbutton
         id="d2nagent-toolbar-button"
         class="toolbarbutton-1 chromeclass-toolbar-additional"
         label="&d2nagentToolbarButton.label;"

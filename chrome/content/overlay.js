@@ -71,13 +71,7 @@ var d2nagent = {
             }
         ];
 
-        // clear statuslog each time you submit
         d2nagent.clearstatus();
-        content.document.getElementsByClassName('right')[0].addEventListener(
-            "change", function(){
-                d2nagent.logger(" '.right' has changed");
-            }, false
-        );
 
         // If Keys should be cleared, clear them.
         if (prefManager.getBoolPref("clearkeys")) {
@@ -169,7 +163,6 @@ var d2nagent = {
             if (xhr.readyState == 4) {
                 if(xhr.status == 200) {
                     var matches = regex.exec(xhr.responseText);
-                    d2nagent.logger(xhr.responseText);
                     prefManager.setCharPref(map['key'], matches[1]);
                     d2nagent.setstatus("Success: " + map['fname'] +
                             " key found. It will be used next time you update.");
@@ -183,7 +176,7 @@ var d2nagent = {
     },
 
     logger: function(aMessage) {
-        var debugging = true;
+        var debugging = false;
         var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
                         .getService(Components.interfaces.nsIConsoleService);
         if (debugging) {

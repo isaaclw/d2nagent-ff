@@ -1,11 +1,4 @@
-/* This is just an example.  You shouldn't do this. */
-#d2nagent-hello
-{
-  color: red ! important;
-}
-
-#d2nagent-toolbar-button
-{
+#d2nagent-toolbar-button {
   list-style-image: url("chrome://d2nagent/skin/24x24.png");
 }
 
@@ -13,23 +6,7 @@
   list-style-image: url("chrome://d2nagent/skin/16x16.png");
 }
 
-[iconsize="small"] #d2nagent-toolbar-button
-{
+[iconsize="small"] #d2nagent-toolbar-button {
   list-style-image: url("chrome://d2nagent/skin/16x16.png");
 }
 
-[iconsize="small"] #d2nagent-toolbar-button:hover
-{
-
-}
-
-
-/* Content inserted into the webpage */
-
-div#statuslog {
-    font-size:2em;
-}
-
-div#statuslog p.entry {
-    color:red;
-}

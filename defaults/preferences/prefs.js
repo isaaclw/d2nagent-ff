@@ -1,4 +1,4 @@
-pref("extensions.d2nagent.apikey-oo", "");
+pref("extensions.d2nagent.apikey-wc", "");
 pref("extensions.d2nagent.apikey-at", "");
 pref("extensions.d2nagent.apikey-em", "");
 pref("extensions.d2nagent.apikey-dd", "");
