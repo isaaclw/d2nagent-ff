@@ -1,8 +1,0 @@
-#!/bin/bash
-
-this=`echo "$0" | sed -e 's/^.\///g'`
-
-
-zip -r $file_name.xpi * -x \*~ \*.xpi $this\*
-
-sudo cp $file_name.xpi /var/www/
