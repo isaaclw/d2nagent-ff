@@ -1,20 +1,20 @@
 /*
-	Copyright (C) 2011 Isaac Witmer, and others.
+    Copyright (C) 2011 Isaac Witmer, and others.
 
-	This file is part of D2N Agent.
+    This file is part of D2N Agent.
 
-	D2N Agent is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+    D2N Agent is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program. If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 var d2nagent = {
@@ -125,11 +125,11 @@ var d2nagent = {
         var tstSuccess = new RegExp(map['success']);
 
         var xhr = new XMLHttpRequest();
-		xhr.open("POST", map['url'], true);
-		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		xhr.setRequestHeader("Content-length", data.length);
-		xhr.setRequestHeader("Connection", "close");
-		xhr.onreadystatechange = function() {
+        xhr.open("POST", map['url'], true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.setRequestHeader("Content-length", data.length);
+        xhr.setRequestHeader("Connection", "close");
+        xhr.onreadystatechange = function() {
             if (xhr.readyState == 4) {
                 if (xhr.status == 200) {
                     if (tstSuccess.test(xhr.responseText)) {
@@ -143,8 +143,8 @@ var d2nagent = {
                                 " failed with html error: '" + xhr.status + "'");
                 }
             } // just keep waiting.
-		}
-		xhr.send(data);
+        }
+        xhr.send(data);
     },
 
     storekey: function(map) {
@@ -159,7 +159,7 @@ var d2nagent = {
         xhr.open("GET", "http://www.die2nite.com/disclaimer?id=" + map['id'], true);
         d2nagent.setstatus("Requesting '" + map['fname'] +
                                     "' key ... please wait till it's retrieved.");
-		xhr.onreadystatechange = function() {
+        xhr.onreadystatechange = function() {
             if (xhr.readyState == 4) {
                 if(xhr.status == 200) {
                     var matches = regex.exec(xhr.responseText);
@@ -187,13 +187,13 @@ var d2nagent = {
     onLoad: function() {
         // initialization code
         this.initialized = true;
-	    document.getElementById("contentAreaContextMenu").addEventListener("popupshowing", function (e) {
-			d2nagent.showContextMenu();
-		}, false);
+        document.getElementById("contentAreaContextMenu").addEventListener("popupshowing", function (e) {
+            d2nagent.showContextMenu();
+        }, false);
     },
 
     showContextMenu: function() {
-		document.getElementById("context-d2nagent").hidden =
+        document.getElementById("context-d2nagent").hidden =
                     d2nagent.disableProgram();
     },
 
