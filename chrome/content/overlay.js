@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2011 Isaac Witmer, and others.
+    Copyright (C) 2011 Isaac Witmer
 
     This file is part of D2N Agent.
 
@@ -68,6 +68,13 @@ var d2nagent = {
                 'dataval':  "key=",
                 'success':  ".*", // TODO: we should be able to do better than this.
                 'id':       14,
+            },
+            {   'fname':    "Map Viewer",
+                'key':      "apikey-mv",
+                'url':      "http://die2nite.gamerz.org.uk/plugin",
+                'dataval':  "key=",
+                'success':  "^Zone .* was updated successfully$",
+                'id':       1,
             }
         ];
 
