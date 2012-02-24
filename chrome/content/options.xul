@@ -5,12 +5,14 @@
 	<prefpane id="pane1" label="&pane1.title;">
 		<preferences>
 			<preference id="clearkeys" name="extensions.d2nagent.clearkeys" type="bool"/>
+			<preference id="debug" name="extensions.d2nagent.debug" type="bool"/>
 		</preferences>
 
         <label>&autoupdate.label;</label>
         <label>&howtouse.label;</label>
 
         <checkbox id="clearkeys" accesskey="&clearkeys.accesskey;" preference="clearkeys" label="&clearkeys.label;" />
+        <checkbox id="debug" accesskey="&debug.accesskey;" preference="debug" label="&debug.label;" />
 
 	</prefpane>
 </prefwindow>
