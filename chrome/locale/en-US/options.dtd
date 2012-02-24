@@ -1,6 +1,9 @@
 <!ENTITY prefwindow.title "Die2nite map updater preferences">
 <!ENTITY pane1.title "Die2nite map tool preferences">
 <!ENTITY autoupdate.label "You add keys by using the tool to auto-update.">
-<!ENTITY howtouse.label "If your keys need to be reset, check this box, and update.">
-<!ENTITY clearkeys.label "Clear Your Keys">
+<!ENTITY howtouse.label "If you changed Your keys, or keys need to be reset, check this box, and update.">
+<!ENTITY clearkeys.label "Enable this to clear all your stored map keys">
 <!ENTITY clearkeys.accesskey "C">
+
+<!ENTITY debug.label "Enable this to see plugin debugging.">
+<!ENTITY debug.accesskey "D">

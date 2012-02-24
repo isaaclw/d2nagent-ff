@@ -183,7 +183,10 @@ var d2nagent = {
     },
 
     logger: function(aMessage) {
-        var debugging = false;
+        var prefManager = Components.classes["@mozilla.org/preferences-service;1"]
+            .getService(Components.interfaces.nsIPrefBranch)
+            .getBranch("extensions.d2nagent.");
+        var debugging = true;
         var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
                         .getService(Components.interfaces.nsIConsoleService);
         if (debugging) {

@@ -4,6 +4,7 @@ pref("extensions.d2nagent.apikey-em", "");
 pref("extensions.d2nagent.apikey-dd", "");
 pref("extensions.d2nagent.apikey-mv", "");
 pref("extensions.d2nagent.clearkeys", true);
+pref("extensions.d2nagent.debug", false);
 
 
 // https://developer.mozilla.org/en/Localizing_extension_descriptions
