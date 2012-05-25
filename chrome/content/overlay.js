@@ -48,13 +48,6 @@ var d2nagent = {
                 'success':  "^1$",
                 'id':       12,
             },
-            {   'fname':    "External Map",
-                'key':      "apikey-em",
-                'url':      "http://d2nextmap.metaemployee.com/index.php?r=site/update",
-                'dataval':  "key=",
-                'success':  "^1$",
-                'id':       15,
-            },
             {   'fname':    "Cartographer",
                 'key':      "apikey-wc",
                 'url':      "http://wastelandcartographer.com/plugin",
@@ -75,7 +68,7 @@ var d2nagent = {
                 'dataval':  "key=",
                 'success':  "^Zone .* was updated successfully$",
                 'id':       1,
-            }
+            },
         ];
 
         d2nagent.clearstatus();
