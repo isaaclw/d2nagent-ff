@@ -20,34 +20,30 @@
 var d2nagent = {
 
     onMenuItemCommand: function(e) {
+        "use strict";
         d2nagent.runUpdate();
     },
 
 
     onToolbarButtonCommand: function(e) {
+        "use strict";
         if (d2nagent.disableProgram()) {
             var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-            .getService(Components.interfaces.nsIPromptService);
+                .getService(Components.interfaces.nsIPromptService);
             promptService.alert(null, "D2N Map Agent",
-                        "This button is for The World Beyond on die2nite.com!");
+                "This button is for The World Beyond on die2nite.com!");
         } else {
             d2nagent.runUpdate();
         }
     },
 
     runUpdate: function() {
-        // VARIABLES
+        // User triggered an update.
+        "use strict";
         var prefManager = Components.classes["@mozilla.org/preferences-service;1"]
             .getService(Components.interfaces.nsIPrefBranch)
             .getBranch("extensions.d2nagent.");
         var MAPS = [
-            {   'fname':    "Atlas",
-                'key':      "apikey-at",
-                'url':      "http://atlas.wonderfulfailure.com/scripts/updater.php",
-                'dataval':  "key=",
-                'success':  "^1$",
-                'id':       12,
-            },
             {   'fname':    "Cartographer",
                 'key':      "apikey-wc",
                 'url':      "http://wastelandcartographer.com/plugin",
@@ -77,13 +73,13 @@ var d2nagent = {
         if (prefManager.getBoolPref("clearkeys")) {
             d2nagent.setstatus("Clearing your keys, and fetching new ones as requested.");
             for each (map in MAPS) {
+                d2nagent.logger('clearing key for ' + map['fname']);
                 prefManager.setCharPref(map['key'], "");
             }
             prefManager.setBoolPref("clearkeys", false);
         }
 
-
-        for each ( map in MAPS ) {
+        for each ( var map in MAPS ) {
             var key = prefManager.getCharPref(map['key']);
             if (key.length > 2 ) {
                 d2nagent.submitUpdate(map, map['dataval']+key);
@@ -91,10 +87,10 @@ var d2nagent = {
                 d2nagent.storekey(map);
             }
         }
-
     },
 
     initstatus: function(id) {
+        "use strict";
         if (content.document.getElementById(id) == null) {
             var newNode = content.document.createElement("div");
             newNode.id = id;
@@ -105,6 +101,8 @@ var d2nagent = {
     },
 
     setstatus: function(status) {
+        // update the user status
+        "use strict";
         if (d2nagent.disableProgram()) {
             return false;
         }
@@ -116,38 +114,39 @@ var d2nagent = {
 
         logNode.appendChild(newEntry);
     },
+
     clearstatus: function() {
+        "use strict";
         var logNode = d2nagent.initstatus("statuslog");
         logNode.textContent = "";
     },
 
     submitUpdate: function(map, data) {
+        // perform an update
+        "use strict";
         var tstSuccess = new RegExp(map['success']);
 
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", map['url'], true);
-        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xhr.setRequestHeader("Content-length", data.length);
-        xhr.setRequestHeader("Connection", "close");
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4) {
-                if (xhr.status == 200) {
-                    if (tstSuccess.test(xhr.responseText)) {
-                        d2nagent.setstatus(map['fname'] + " is updated!");
-                    } else {
-                        d2nagent.setstatus(map['fname'] +
-                                        " did not return the correct response.");
-                    }
+        $.ajax({
+            url: map['url'],
+            data: data,
+            type: 'POST',
+            success: function(data, textStatus, jqXHR) {
+                d2nagent.logger(map['fname'] + ' returned response = ' + data);
+                if (tstSuccess.test(data)) {
+                    d2nagent.setstatus(map['fname'] + " is updated!");
                 } else {
-                    d2nagent.setstatus(map['fname'] +
-                                " failed with html error: '" + xhr.status + "'");
+                    d2nagent.setstatus(map['fname'] + " did not return the correct response.");
                 }
-            } // just keep waiting.
-        }
-        xhr.send(data);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                d2nagent.setstatus(map['fname'] + " failed with http error: '" + errorThrown + "'");
+            },
+        })
     },
 
     storekey: function(map) {
+        // retrieve and store the key of an application
+        "use strict";
         var prefManager = Components.classes["@mozilla.org/preferences-service;1"]
             .getService(Components.interfaces.nsIPrefBranch)
             .getBranch("extensions.d2nagent.");
@@ -156,30 +155,33 @@ var d2nagent = {
         regex.lastIndex = 0;
         var xhr = new XMLHttpRequest();
 
-        xhr.open("GET", "http://www.die2nite.com/disclaimer?id=" + map['id'], true);
-        d2nagent.setstatus("Requesting '" + map['fname'] +
-                                    "' key ... please wait till it's retrieved.");
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4) {
-                if(xhr.status == 200) {
-                    var matches = regex.exec(xhr.responseText);
-                    prefManager.setCharPref(map['key'], matches[1]);
-                    d2nagent.setstatus("Success: " + map['fname'] +
-                            " key found. It will be used next time you update.");
+        d2nagent.setstatus("Requesting '" + map['fname'] + "' key ... please wait.");
+        $.ajax({
+            url: "http://www.die2nite.com/disclaimer?id=" + map['id'],
+            type: 'GET',
+            success: function(data, textStatus, jqXHR) {
+                var matches = regex.exec(data);
+                d2nagent.logger('matches = ' + matches);
+                if (matches == null || matches[1] == null) {
+                    d2nagent.setstatus("Failure: could not find " + map['fname'] + " key.");
                 } else {
-                    d2nagent.setstatus("Failure: Could not find the key for " +
-                            map['fname'] + ".");
+                    prefManager.setCharPref(map['key'], matches[1]);
+                    d2nagent.setstatus("Success: '" + map['fname'] + "' key found.");
                 }
-            }
-        }
-        xhr.send(null);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                d2nagent.setstatus("Failure: http error: '" + errorThrown + "' while attempting to retrieve key for " + map['fname'] + ".");
+            },
+        });
     },
 
     logger: function(aMessage) {
+        // debug logger
+        "use strict";
         var prefManager = Components.classes["@mozilla.org/preferences-service;1"]
             .getService(Components.interfaces.nsIPrefBranch)
             .getBranch("extensions.d2nagent.");
-        var debugging = prefManger.getCharPref('debug');
+        var debugging = prefManager.getBoolPref('debug');
         var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
                         .getService(Components.interfaces.nsIConsoleService);
         if (debugging) {
@@ -188,6 +190,7 @@ var d2nagent = {
     },
 
     onLoad: function() {
+        "use strict";
         // initialization code
         this.initialized = true;
         document.getElementById("contentAreaContextMenu").addEventListener("popupshowing", function (e) {
@@ -196,16 +199,19 @@ var d2nagent = {
     },
 
     showContextMenu: function() {
+        "use strict";
         document.getElementById("context-d2nagent").hidden =
                     d2nagent.disableProgram();
     },
 
     disableProgram: function() { // returns true (disable the program!) if you're not outside
+        "use strict";
         return (window.content.location.href.match('^http://www\.die2nite\.com/\#outside\\?go\=outside\/refresh') == null);
     },
 
 };
 
 window.addEventListener("load", function () {
+    "use strict";
     d2nagent.onLoad();
 }, false);
