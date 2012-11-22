@@ -126,22 +126,27 @@ var d2nagent = {
         "use strict";
         var tstSuccess = new RegExp(map['success']);
 
-        $.ajax({
-            url: map['url'],
-            data: data,
-            type: 'POST',
-            success: function(data, textStatus, jqXHR) {
-                d2nagent.logger(map['fname'] + ' returned response = ' + data);
-                if (tstSuccess.test(data)) {
-                    d2nagent.setstatus(map['fname'] + " is updated!");
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", map['url'], true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.setRequestHeader("Content-length", data.length);
+        xhr.setRequestHeader("Connection", "close");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    if (tstSuccess.test(xhr.responseText)) {
+                        d2nagent.setstatus(map['fname'] + " is updated!");
+                    } else {
+                        d2nagent.setstatus(map['fname'] +
+                                        " did not return the correct response.");
+                    }
                 } else {
-                    d2nagent.setstatus(map['fname'] + " did not return the correct response.");
+                    d2nagent.setstatus(map['fname'] +
+                                " failed, http error: '" + xhr.status + "'");
                 }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                d2nagent.setstatus(map['fname'] + " failed with http error: '" + errorThrown + "'");
-            },
-        })
+            } // just keep waiting.
+        }
+        xhr.send(data);
     },
 
     storekey: function(map) {
@@ -153,26 +158,26 @@ var d2nagent = {
 
         var regex = /<input.*?name="key".*?value="([0-9a-f]+)"/ig;
         regex.lastIndex = 0;
-        var xhr = new XMLHttpRequest();
 
+        var xhr = new XMLHttpRequest();
         d2nagent.setstatus("Requesting '" + map['fname'] + "' key ... please wait.");
-        $.ajax({
-            url: "http://www.die2nite.com/disclaimer?id=" + map['id'],
-            type: 'GET',
-            success: function(data, textStatus, jqXHR) {
-                var matches = regex.exec(data);
-                d2nagent.logger('matches = ' + matches);
-                if (matches == null || matches[1] == null) {
-                    d2nagent.setstatus("Failure: could not find " + map['fname'] + " key.");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+                if(xhr.status == 200) {
+                  var matches = regex.exec(data);
+                  d2nagent.logger('matches = ' + matches);
+                  if (matches == null || matches[1] == null) {
+                      d2nagent.setstatus("Failure: could not find " + map['fname'] + " key.");
+                  } else {
+                      prefManager.setCharPref(map['key'], matches[1]);
+                      d2nagent.setstatus("Success: '" + map['fname'] + "' key found.");
+                  }
                 } else {
-                    prefManager.setCharPref(map['key'], matches[1]);
-                    d2nagent.setstatus("Success: '" + map['fname'] + "' key found.");
+                    d2nagent.setstatus("Failure: http error: '" + xhr.status + "' while getting key for " + map['fname'] + ".");
                 }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                d2nagent.setstatus("Failure: http error: '" + errorThrown + "' while attempting to retrieve key for " + map['fname'] + ".");
-            },
-        });
+            }
+        };
+        xhr.send(null);
     },
 
     logger: function(aMessage) {
