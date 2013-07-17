@@ -160,11 +160,12 @@ var d2nagent = {
         regex.lastIndex = 0;
 
         var xhr = new XMLHttpRequest();
+        xhr.open("GET", "http://www.die2nite.com/disclaimer?id=" + map['id'], true);
         d2nagent.setstatus("Requesting '" + map['fname'] + "' key ... please wait.");
         xhr.onreadystatechange = function() {
             if (xhr.readyState == 4) {
                 if(xhr.status == 200) {
-                  var matches = regex.exec(data);
+                  var matches = regex.exec(xhr.responseText);
                   d2nagent.logger('matches = ' + matches);
                   if (matches == null || matches[1] == null) {
                       d2nagent.setstatus("Failure: could not find " + map['fname'] + " key.");
@@ -177,7 +178,7 @@ var d2nagent = {
                 }
             }
         };
-        xhr.send(null);
+        xhr.send();
     },
 
     logger: function(aMessage) {
