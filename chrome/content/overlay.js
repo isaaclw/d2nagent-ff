@@ -1,3 +1,4 @@
+/*globals Components, content, XMLHttpRequest, document, window */
 /*
     Copyright (C) 2011 Isaac Witmer
 
@@ -18,18 +19,16 @@
 */
 
 var d2nagent = {
-
-    onMenuItemCommand: function(e) {
+    onMenuItemCommand: function (e) {
         "use strict";
         d2nagent.runUpdate();
     },
 
 
-    onToolbarButtonCommand: function(e) {
+    onToolbarButtonCommand: function (e) {
         "use strict";
         if (d2nagent.disableProgram()) {
-            var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                .getService(Components.interfaces.nsIPromptService);
+            var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
             promptService.alert(null, "D2N Map Agent",
                 "This button is for The World Beyond on die2nite.com!");
         } else {
@@ -37,47 +36,50 @@ var d2nagent = {
         }
     },
 
-    runUpdate: function() {
+    runUpdate: function () {
         // User triggered an update.
         "use strict";
-        var prefManager = Components.classes["@mozilla.org/preferences-service;1"]
-            .getService(Components.interfaces.nsIPrefBranch)
-            .getBranch("extensions.d2nagent.");
-        var MAPS = [
-            {   'fname':    "Dusk till Dawn",
+        var prefManager, i, map, key, enabled, MAPS = [
+            {
+                'fname':    "Dusk till Dawn",
                 'code':     "dd",
                 'url':      "http://d2n.duskdawn.net/zone?action=UPDATE_ZONE",
                 'dataval':  "key=",
                 'success':  ".*", // TODO: we should be able to do better than this.
-                'id':       14,
+                'id':       14
             },
-            {   'fname':    "Map Viewer",
+            {
+                'fname':    "Map Viewer",
                 'code':     "mv",
                 'url':      "http://die2nite.gamerz.org.uk/plugin",
                 'dataval':  "key=",
                 'success':  "^Zone .* was updated successfully$",
-                'id':       1,
-            },
+                'id':       1
+            }
         ];
+        prefManager = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch).getBranch("extensions.d2nagent.");
+
 
         d2nagent.clearstatus();
 
         // If Keys should be cleared, clear them.
         if (prefManager.getBoolPref("clearkeys")) {
             d2nagent.setstatus("Clearing your keys, and fetching new ones as requested.");
-            for each (map in MAPS) {
-                d2nagent.logger('clearing key for ' + map['fname']);
-                prefManager.setCharPref('apikey-' + map['code'], "");
+            for (i = 0; i < MAPS.length; i = i + 1) {
+                map = MAPS[i];
+                d2nagent.logger('clearing key for ' + map.fname);
+                prefManager.setCharPref('apikey-' + map.code, "");
             }
             prefManager.setBoolPref("clearkeys", false);
         }
 
-        for each ( var map in MAPS ) {
-            var key = prefManager.getCharPref('apikey-' + map['code']),
-                enabled = prefManager.getBoolPref('enabled-' + map['code']);
+        for (i = 0; i < MAPS.length; i = i + 1) {
+            map = MAPS[i];
+            key = prefManager.getCharPref('apikey-' + map.code);
+            enabled = prefManager.getBoolPref('enabled-' + map.code);
             if (enabled) {
-                if (key.length > 2 ) {
-                    d2nagent.submitUpdate(map, map['dataval']+key);
+                if (key.length > 2) {
+                    d2nagent.submitUpdate(map, map.dataval + key);
                 } else {
                     d2nagent.storekey(map);
                 }
@@ -85,113 +87,114 @@ var d2nagent = {
         }
     },
 
-    initstatus: function(id) {
+    initstatus: function (id) {
         "use strict";
-        if (content.document.getElementById(id) == null) {
-            var newNode = content.document.createElement("div");
+        var newNode, refNode;
+        if (content.document.getElementById(id) === null) {
+            newNode = content.document.createElement("div");
+            refNode = content.document.getElementById("mapTips");
             newNode.id = id;
-            var refNode = content.document.getElementById("mapTips");
             refNode.parentNode.appendChild(newNode);
         }
         return content.document.getElementById(id);
     },
 
-    setstatus: function(status) {
+    setstatus: function (status) {
         // update the user status
         "use strict";
+        var logNode, newEntry;
         if (d2nagent.disableProgram()) {
             return false;
         }
-        var logNode = d2nagent.initstatus("statuslog");
 
-        var newEntry = content.document.createElement("p");
+        logNode = d2nagent.initstatus("statuslog");
+        newEntry = content.document.createElement("p");
+
         newEntry.className = "entry";
         newEntry.textContent = status;
 
         logNode.appendChild(newEntry);
     },
 
-    clearstatus: function() {
+    clearstatus: function () {
         "use strict";
         var logNode = d2nagent.initstatus("statuslog");
         logNode.textContent = "";
     },
 
-    submitUpdate: function(map, data) {
+    submitUpdate: function (map, data) {
         // perform an update
         "use strict";
-        var tstSuccess = new RegExp(map['success']);
+        var tstSuccess = new RegExp(map.success),
+            xhr = new XMLHttpRequest();
 
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", map['url'], true);
+        xhr.open("POST", map.url, true);
         xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhr.setRequestHeader("Content-length", data.length);
         xhr.setRequestHeader("Connection", "close");
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4) {
-                if (xhr.status == 200) {
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
                     if (tstSuccess.test(xhr.responseText)) {
-                        d2nagent.setstatus(map['fname'] + " is updated!");
+                        d2nagent.setstatus(map.fname + " is updated!");
                     } else {
-                        d2nagent.setstatus(map['fname'] +
+                        d2nagent.setstatus(map.fname +
                                         " did not return the correct response.");
                     }
                 } else {
-                    d2nagent.setstatus(map['fname'] +
+                    d2nagent.setstatus(map.fname +
                                 " failed, http error: '" + xhr.status + "'");
                 }
             } // just keep waiting.
-        }
+        };
         xhr.send(data);
     },
 
-    storekey: function(map) {
+    storekey: function (map) {
         // retrieve and store the key of an application
         "use strict";
-        var prefManager = Components.classes["@mozilla.org/preferences-service;1"]
-            .getService(Components.interfaces.nsIPrefBranch)
-            .getBranch("extensions.d2nagent.");
+        var xhr, matches, regex, prefManager;
 
-        var regex = /<input.*?name="key".*?value="([0-9a-f]+)"/ig;
+        prefManager = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch).getBranch("extensions.d2nagent.");
+
+        regex = /<input.*?name="key".*?value="([0-9a-f]+)"/ig;
         regex.lastIndex = 0;
 
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", "http://www.die2nite.com/disclaimer?id=" + map['id'], true);
-        d2nagent.setstatus("Requesting '" + map['fname'] + "' key ... please wait.");
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4) {
-                if(xhr.status == 200) {
-                  var matches = regex.exec(xhr.responseText);
-                  d2nagent.logger('matches = ' + matches);
-                  if (matches == null || matches[1] == null) {
-                      d2nagent.setstatus("Failure: could not find " + map['fname'] + " key.");
-                  } else {
-                      prefManager.setCharPref('apikey-' + map['code'], matches[1]);
-                      d2nagent.setstatus("Success: '" + map['fname'] + "' key found.");
-                  }
+        xhr = new XMLHttpRequest();
+        xhr.open("GET", "http://www.die2nite.com/disclaimer?id=" + map.id, true);
+        d2nagent.setstatus("Requesting '" + map.fname + "' key ... please wait.");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    matches = regex.exec(xhr.responseText);
+                    d2nagent.logger('matches = ' + matches);
+                    if (matches === null || matches[1] === null) {
+                        d2nagent.setstatus("Failure: could not find " + map.fname + " key.");
+                    } else {
+                        prefManager.setCharPref('apikey-' + map.code, matches[1]);
+                        d2nagent.setstatus("Success: '" + map.fname + "' key found.");
+                    }
                 } else {
-                    d2nagent.setstatus("Failure: http error: '" + xhr.status + "' while getting key for " + map['fname'] + ".");
+                    d2nagent.setstatus("Failure: http error: '" + xhr.status + "' while getting key for " + map.fname + ".");
                 }
             }
         };
         xhr.send();
     },
 
-    logger: function(aMessage) {
+    logger: function (aMessage) {
         // debug logger
         "use strict";
-        var prefManager = Components.classes["@mozilla.org/preferences-service;1"]
-            .getService(Components.interfaces.nsIPrefBranch)
-            .getBranch("extensions.d2nagent.");
-        var debugging = prefManager.getBoolPref('debug');
-        var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
-                        .getService(Components.interfaces.nsIConsoleService);
+        var prefManager, debugging, consoleService;
+        prefManager = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch).getBranch("extensions.d2nagent.");
+        debugging = prefManager.getBoolPref('debug');
         if (debugging) {
+            consoleService = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
             consoleService.logStringMessage("d2nA[dbg]:\n" + aMessage);
         }
     },
 
-    onLoad: function() {
+    onLoad: function () {
         "use strict";
         // initialization code
         this.initialized = true;
@@ -200,17 +203,15 @@ var d2nagent = {
         }, false);
     },
 
-    showContextMenu: function() {
+    showContextMenu: function () {
         "use strict";
-        document.getElementById("context-d2nagent").hidden =
-                    d2nagent.disableProgram();
+        document.getElementById("context-d2nagent").hidden = d2nagent.disableProgram();
     },
 
-    disableProgram: function() { // returns true (disable the program!) if you're not outside
+    disableProgram: function () { // returns true (disable the program!) if you're not outside
         "use strict";
-        return (window.content.location.href.match('^http://www\.die2nite\.com/\#outside\\?go\=outside\/refresh') == null);
-    },
-
+        return (window.content.location.href.match('^http://www\.die2nite\.com/\#outside\\?go\=outside\/refresh') === null);
+    }
 };
 
 window.addEventListener("load", function () {
