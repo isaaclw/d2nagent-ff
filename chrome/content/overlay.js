@@ -44,22 +44,15 @@ var d2nagent = {
             .getService(Components.interfaces.nsIPrefBranch)
             .getBranch("extensions.d2nagent.");
         var MAPS = [
-            {   'fname':    "Cartographer",
-                'key':      "apikey-wc",
-                'url':      "http://wastelandcartographer.com/plugin",
-                'dataval':  "key=",
-                'success':  ".*", // Uses HTTP error codes
-                'id':       19,
-            },
             {   'fname':    "Dusk till Dawn",
-                'key':      "apikey-dd",
+                'code':     "dd",
                 'url':      "http://d2n.duskdawn.net/zone?action=UPDATE_ZONE",
                 'dataval':  "key=",
                 'success':  ".*", // TODO: we should be able to do better than this.
                 'id':       14,
             },
             {   'fname':    "Map Viewer",
-                'key':      "apikey-mv",
+                'code':     "mv",
                 'url':      "http://die2nite.gamerz.org.uk/plugin",
                 'dataval':  "key=",
                 'success':  "^Zone .* was updated successfully$",
@@ -74,17 +67,20 @@ var d2nagent = {
             d2nagent.setstatus("Clearing your keys, and fetching new ones as requested.");
             for each (map in MAPS) {
                 d2nagent.logger('clearing key for ' + map['fname']);
-                prefManager.setCharPref(map['key'], "");
+                prefManager.setCharPref('apikey-' + map['code'], "");
             }
             prefManager.setBoolPref("clearkeys", false);
         }
 
         for each ( var map in MAPS ) {
-            var key = prefManager.getCharPref(map['key']);
-            if (key.length > 2 ) {
-                d2nagent.submitUpdate(map, map['dataval']+key);
-            } else {
-                d2nagent.storekey(map);
+            var key = prefManager.getCharPref('apikey-' + map['code']),
+                enabled = prefManager.getBoolPref('enabled-' + map['code']);
+            if (enabled) {
+                if (key.length > 2 ) {
+                    d2nagent.submitUpdate(map, map['dataval']+key);
+                } else {
+                    d2nagent.storekey(map);
+                }
             }
         }
     },
@@ -170,7 +166,7 @@ var d2nagent = {
                   if (matches == null || matches[1] == null) {
                       d2nagent.setstatus("Failure: could not find " + map['fname'] + " key.");
                   } else {
-                      prefManager.setCharPref(map['key'], matches[1]);
+                      prefManager.setCharPref('apikey-' + map['code'], matches[1]);
                       d2nagent.setstatus("Success: '" + map['fname'] + "' key found.");
                   }
                 } else {

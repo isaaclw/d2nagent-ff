@@ -8,3 +8,10 @@
 
 <!ENTITY debug.label "See plugin debugging.">
 <!ENTITY debug.accesskey "D">
+
+<!ENTITY enable_disable.label "Enable or disable certain maps">
+
+<!ENTITY enable-dd.label "Dusk Till Dawn">
+<!ENTITY enable-dd.accesskey "T">
+<!ENTITY enable-mv.label "Map Viewer">
+<!ENTITY enable-mv.accesskey "M">
