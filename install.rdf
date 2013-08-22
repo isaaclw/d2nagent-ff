@@ -4,7 +4,7 @@
     <em:id>d2nagent@isaaclw.com</em:id>
     <em:type>2</em:type>
     <em:name>D2N Agent</em:name>
-    <em:version>0.4.6</em:version>
+    <em:version>0.4.7</em:version>
     <em:creator>Isaac Witmer</em:creator>
     <em:description>This program updates unofficial maps related to the browser game die2nite.</em:description>
     <em:aboutURL>chrome://d2nagent/content/about.xul</em:aboutURL>
