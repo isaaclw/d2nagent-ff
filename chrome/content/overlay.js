@@ -76,7 +76,7 @@ var d2nagent = {
         for (i = 0; i < MAPS.length; i = i + 1) {
             map = MAPS[i];
             key = prefManager.getCharPref('apikey-' + map.code);
-            enabled = prefManager.getBoolPref('enabled-' + map.code);
+            enabled = prefManager.getBoolPref('enable-' + map.code);
             if (enabled) {
                 if (key.length > 2) {
                     d2nagent.submitUpdate(map, map.dataval + key);
